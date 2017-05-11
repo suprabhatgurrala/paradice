@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Paradice</string>
-    <string name="tap_instructions">Tap to roll dice</string>
+    <string name="tap_instructions">Tap to roll.</string>
 </resources>
