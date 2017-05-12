@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Paradice</string>
     <string name="tap_instructions">Tap to roll.</string>
-    <string name="num_dice_seekbar_title">Number of Dice</string>
+    <string name="num_dice_seekbar_title">Number o Dice</string>
 </resources>
