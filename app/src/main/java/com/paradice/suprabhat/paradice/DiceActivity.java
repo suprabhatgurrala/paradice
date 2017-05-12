@@ -18,9 +18,8 @@ public class DiceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dice_layout);
 
-        final TextView textView = (TextView) findViewById(R.id.textView);
+        final TextView diceTextView = (TextView) findViewById(R.id.diceTextView);
         final SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
-        int numDice = 0;
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -45,8 +44,8 @@ public class DiceActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        textView.setText(APIClient.getMultipleDiceRolls(seekBar.getProgress() + 1));
-                        textView.setTextSize(COMPLEX_UNIT_SP, 96);
+                        diceTextView.setText(APIClient.getMultipleDiceRolls(seekBar.getProgress() + 1));
+                        diceTextView.setTextSize(COMPLEX_UNIT_SP, 96);
                     }
                 }
         );
