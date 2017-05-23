@@ -1,14 +1,12 @@
 package com.paradice.suprabhat.paradice;
 
-import android.util.Log;
-
 import java.util.Random;
 
-public enum APIClient {
+public enum Roller {
     instance;
     Random rand;
 
-    private APIClient() {
+    private Roller() {
         rand = new Random();
     }
 
