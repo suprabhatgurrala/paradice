@@ -1,8 +1,11 @@
 package com.paradice.suprabhat.paradice;
 
+import android.util.Log;
+
 import org.random.api.RandomOrgCache;
 import org.random.api.RandomOrgClient;
 
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
@@ -12,28 +15,22 @@ import static org.random.util.RandomOrgAPIKey.RANDOM_API_KEY;
  * Class to generate random rolls. Defined as enum for Singleton design pattern.
  */
 public enum Roller {
-    instance;
-    int[] randomCache;
-    int index = 0;
-    Random rand = new Random();
-
-    /**
-     * Private constructor to initially populate cache.
-     */
-    Roller() {
-        populateCache();
-    }
+    INSTANCE;
+    private int[] randomCache = null;
+    private int index = 0;
+    private Random rand = new Random();
 
     /**
      * Gets the next value available in the cache or repopulates cache if it has been used.
      * @return next available value in cache.
      */
     public static int getRandomNumber() {
-        if (instance.index >= instance.randomCache.length) {
+        if (INSTANCE.randomCache == null || INSTANCE.index >= INSTANCE.randomCache.length) {
             populateCache();
-            instance.index = 0;
+            INSTANCE.index = 0;
         }
-        return instance.randomCache[instance.index++];
+        Log.d("Roller.java", "Accessing cache at index " + INSTANCE.index + ": " + Arrays.toString(INSTANCE.randomCache));
+        return INSTANCE.randomCache[INSTANCE.index++];
     }
 
     /**
@@ -41,20 +38,35 @@ public enum Roller {
      * of pseudorandom numbers.
      */
     public static void populateCache() {
+        Log.d("Roller.java", "Attempting to populate cache.");
         RandomOrgClient roc = RandomOrgClient.getRandomOrgClient(RANDOM_API_KEY);
         RandomOrgCache<int[]> c = roc.createIntegerCache(1000, 0, 5);
 
         int[] randoms;
 
-        try {
-             randoms = c.get();
-
-        } catch (NoSuchElementException e) {
-            randoms = new int[10];
-            Random rand = new Random();
-            randoms[0] = rand.nextInt(6);
+        if (INSTANCE == null) {
+            Log.d("Roller.java", "INSTANCE is null");
         }
-        instance.randomCache = randoms;
+        if (INSTANCE.randomCache == null) {
+            Log.d("Roller.java", "randomCache is null");
+        }
+
+        try {
+            randoms = c.get();
+            Log.d("Roller.java", "Got data from API: " + Arrays.toString(randoms));
+            if (randoms == null) {
+                throw new NoSuchElementException("Got a null response.");
+            }
+        } catch (NoSuchElementException e) {
+            Log.d("Roller.java", "API Data unavailable, populating short term cache with psuedorandom data");
+            randoms = new int[10];
+            for (int i = 0; i < randoms.length; i++) {
+                randoms[i] = INSTANCE.rand.nextInt(6);
+            }
+        }
+        Log.d("Roller.java", "New cache: " + Arrays.toString(randoms));
+        INSTANCE.randomCache = randoms;
+        Log.d("Roller.java", "Populated cache.");
     }
 
     /**
