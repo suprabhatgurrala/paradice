@@ -2,12 +2,14 @@ package com.paradice.suprabhat.paradice;
 
 import java.util.Random;
 
+import static org.random.util.RandomOrgAPIKey.RANDOM_API_KEY;
+
 public enum Roller {
     instance;
     Random rand;
 
     private Roller() {
-        rand = new Random();
+        rand = new org.random.util.RandomOrgRandom(RANDOM_API_KEY);
     }
 
     public static int getRandomNumber(int maxVal) {
