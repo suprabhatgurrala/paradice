@@ -5,6 +5,8 @@ import android.util.Log;
 import org.random.api.RandomOrgCache;
 import org.random.api.RandomOrgClient;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Random;
@@ -19,17 +21,18 @@ public enum Roller {
     private int[] randomCache = null;
     private int index = 0;
     private Random rand = new Random();
+    private final String TAG = "Roller";
 
     /**
      * Gets the next value available in the cache or repopulates cache if it has been used.
      * @return next available value in cache.
      */
-    public static int getRandomNumber() {
+    public int getRandomNumber() {
         if (INSTANCE.randomCache == null || INSTANCE.index >= INSTANCE.randomCache.length) {
             populateCache();
             INSTANCE.index = 0;
         }
-        Log.d("Roller.java", "Accessing cache at index " + INSTANCE.index + ": " + Arrays.toString(INSTANCE.randomCache));
+        Log.d(INSTANCE.TAG, "Accessing cache at index " + INSTANCE.index + ": " + Arrays.toString(INSTANCE.randomCache));
         return INSTANCE.randomCache[INSTANCE.index++];
     }
 
@@ -37,43 +40,42 @@ public enum Roller {
      * Populates cache using Random.org data. If data is not available, populates a temporary cache
      * of pseudorandom numbers.
      */
-    public static void populateCache() {
-        Log.d("Roller.java", "Attempting to populate cache.");
+    public void populateCache() {
+        Log.d(INSTANCE.TAG, "Attempting to populate cache.");
         RandomOrgClient roc = RandomOrgClient.getRandomOrgClient(RANDOM_API_KEY);
-        RandomOrgCache<int[]> c = roc.createIntegerCache(1000, 0, 5);
 
-        int[] randoms;
+        int[] randoms = new int[10];
 
-        if (INSTANCE == null) {
-            Log.d("Roller.java", "INSTANCE is null");
-        }
-        if (INSTANCE.randomCache == null) {
-            Log.d("Roller.java", "randomCache is null");
-        }
-
-        try {
-            randoms = c.get();
-            Log.d("Roller.java", "Got data from API: " + Arrays.toString(randoms));
-            if (randoms == null) {
-                throw new NoSuchElementException("Got a null response.");
+//        while (true) {
+            try {
+                randoms = roc.generateIntegers(1000, 0, 5);
+                Log.d("Roller.java", "Got data from API: " + Arrays.toString(randoms));
+            } catch (Exception e) {
+                Log.e(INSTANCE.TAG, e.getMessage());
             }
-        } catch (NoSuchElementException e) {
-            Log.d("Roller.java", "API Data unavailable, populating short term cache with psuedorandom data");
-            randoms = new int[10];
-            for (int i = 0; i < randoms.length; i++) {
-                randoms[i] = INSTANCE.rand.nextInt(6);
-            }
-        }
-        Log.d("Roller.java", "New cache: " + Arrays.toString(randoms));
+//            } catch (NoSuchElementException e) {
+////                Log.d("Roller.java", "API Data unavailable, populating short term cache with psuedorandom data");
+////                randoms = new int[10];
+////                for (int i = 0; i < randoms.length; i++) {
+////                    randoms[i] = INSTANCE.rand.nextInt(6);
+////                }
+//                break;
+//            } catch (MalformedURLException e) {
+//                e.printStackTrace();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+        Log.d(INSTANCE.TAG, "New cache: " + Arrays.toString(randoms));
         INSTANCE.randomCache = randoms;
-        Log.d("Roller.java", "Populated cache.");
+        Log.d(INSTANCE.TAG, "Populated cache.");
     }
 
     /**
      * Converts integers to Unicode dice characters
      * @return Unicode dice String representing the roll
      */
-    public static String getDiceRoll() {
+    public String getDiceRoll() {
         int num = getRandomNumber();
         String roll = "";
         switch (num) {
@@ -107,7 +109,7 @@ public enum Roller {
      * @param num number of dice rolls to retrieve
      * @return a String of Unicode dice chars
      */
-    public static String getMultipleDiceRolls(int num) {
+    public String getMultipleDiceRolls(int num) {
         String rolls = "";
         for (int i = 0; i < num; i++) {
             rolls += getDiceRoll();
